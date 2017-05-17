@@ -6,3 +6,5 @@ authors.py
 media.py
 config.ini
 app.yaml
+notfound.py
+gen.py

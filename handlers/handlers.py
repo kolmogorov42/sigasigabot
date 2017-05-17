@@ -4,6 +4,8 @@ import logging
 from message_handler import logger
 from bot import sl, media_cache
 from media import images, sounds, videos
+import gen
+import notfound
 
 def start(bot, update):
     bot.sendMessage(update.message.chat_id, text='Hi!')
@@ -64,8 +66,11 @@ def pickSiga(bot, update, n_siga = 0):
 			text = sl[n_siga]['text'] + '\r\n' + videos[n_siga])
 
 	else:
-		siga = sl[n_siga]['text']
-		bot.sendMessage(update.message.chat_id, text=siga)
+		try:
+			siga = sl[n_siga]['text']
+			bot.sendMessage(update.message.chat_id, text=siga)
+		except:
+			randomSiga(bot, update)
 
 
 def randomSiga(bot, update):
@@ -80,6 +85,33 @@ def parseMsgNumber(bot, update):
 		n_siga = None
 	pickSiga(bot, update, n_siga)
 
+
 def parseInlineQuery(bot, update):
 	logger.info(update)
 	#todo write the whole function
+
+
+def genSiga(bot, update):
+	bot.sendMessage(update.message.chat_id, text=gen.generate())
+
+
+def parseGeneral(bot, update):
+	text = update.message.text
+	try:
+		n_siga = int(text)
+		pickSiga(bot, update, n_siga)
+	except:
+		if text == 'gen':
+			genSiga(bot, update)
+		elif text == 'random':
+			randomSiga(bot, update)
+		else:
+			results = filter(lambda x: text in x['text'], sl)
+			if results:
+				bot.sendMessage(update.message.chat_id, text=random.choice(results)['text'])
+			else:
+				chosen = random.choice(notfound.notfound)
+				if "%s" in chosen:
+					bot.sendMessage(update.message.chat_id, text=(chosen % text).encode('utf8'))
+				else:
+					bot.sendMessage(update.message.chat_id, text=chosen.encode('utf8'))

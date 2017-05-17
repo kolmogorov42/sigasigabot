@@ -31,7 +31,7 @@ def setup():
     # ---Register handlers here---
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
-    dispatcher.add_handler(MessageHandler([Filters.text], parseMsgNumber))
+    dispatcher.add_handler(MessageHandler([Filters.text], parseGeneral))
     dispatcher.add_handler(InlineQueryHandler(parseInlineQuery))
 
     dispatcher.add_error_handler(error)
