@@ -112,6 +112,6 @@ def parseGeneral(bot, update):
 			else:
 				chosen = random.choice(notfound.notfound)
 				if "%s" in chosen:
-					bot.sendMessage(update.message.chat_id, text=(chosen % text).encode('utf8'))
+					bot.sendMessage(update.message.chat_id, text=(chosen % text))
 				else:
-					bot.sendMessage(update.message.chat_id, text=chosen.encode('utf8'))
+					bot.sendMessage(update.message.chat_id, text=chosen)
