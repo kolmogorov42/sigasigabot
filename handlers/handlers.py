@@ -35,12 +35,12 @@ def pickSiga(bot, update, n_siga=0):
             bot.sendPhoto(
                 chat_id=update.message.chat_id,
                 photo=file_id,
-                caption=sl[n_siga]['text'].encode('utf8'))
+                caption=sl[n_siga][1]['text'].encode('utf8'))
         except KeyError:
             msg = bot.sendPhoto(
                 chat_id=update.message.chat_id,
                 photo=open('res/media/%d.jpg' % n_siga, 'rb'),
-                caption=sl[n_siga]['text'].encode('utf8'))
+                caption=sl[n_siga][1]['text'].encode('utf8'))
             media_cache.add(n_siga, msg.photo[0].file_id)
 
     elif n_siga in sounds:
@@ -51,24 +51,24 @@ def pickSiga(bot, update, n_siga=0):
                 audio=file_id,
                 title=sounds[n_siga].encode('utf8'),
                 performer="Cani in Alto",
-                caption=sl[n_siga]['text'].encode('utf8'))
+                caption=sl[n_siga][1]['text'].encode('utf8'))
         except KeyError:
             msg = bot.sendAudio(
                 chat_id=update.message.chat_id,
                 audio=open('res/media/%d.mp3' % n_siga, 'rb'),
                 title=sounds[n_siga].encode('utf8'),
                 performer="Cani in Alto",
-                caption=sl[n_siga]['text'].encode('utf8'))
+                caption=sl[n_siga][1]['text'].encode('utf8'))
             media_cache.add(n_siga, str(msg.audio.file_id))
 
     elif n_siga in videos:
         bot.sendMessage(
             update.message.chat_id,
-            text=sl[n_siga]['text'] + '\r\n' + videos[n_siga])
+            text=sl[n_siga][1]['text'] + '\r\n' + videos[n_siga])
 
     else:
         try:
-            siga = sl[n_siga]['text']
+            siga = sl[n_siga][1]['text']
             bot.sendMessage(update.message.chat_id, text=siga)
         except KeyError:
             randomSiga(bot, update)
@@ -111,7 +111,7 @@ def parseGeneral(bot, update):
         else:
             results = utils.match(text, sl)
             if results:
-                bot.sendMessage(update.message.chat_id, text=random.choice(results)['text'])
+                pickSiga(bot, update, n_siga=random.choice(results)[0])
             else:
                 chosen = random.choice(notfound.notfound)
                 if "%s" in chosen:

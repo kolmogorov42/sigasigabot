@@ -18,7 +18,8 @@ from credentials import TOKEN
 from webapp2 import WSGIApplication, Route
 
 sf = codecs.open('res/sigaclean.txt', 'r', 'utf-8')
-sl = json.load(sf)
+sl_aux = json.load(sf)
+sl = zip(range(len(sl_aux)), sl_aux)
 
 routes = [
     # Route for handle webhook (change it using admin rights, maybe..
