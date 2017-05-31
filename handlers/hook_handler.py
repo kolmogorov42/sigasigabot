@@ -3,7 +3,7 @@ from webapp2 import RequestHandler
 
 import telegram
 from telegram import bot
-from message_handler import bot, setup, webhook
+from message_handler import bot, webhook
 from credentials import TOKEN, APP_URL
 import json
 
