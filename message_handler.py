@@ -42,3 +42,5 @@ def webhook(update):
     global dispatcher
     # Manually get updates and pass to dispatcher
     dispatcher.process_update(update)
+
+setup()
