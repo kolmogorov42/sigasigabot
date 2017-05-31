@@ -16,7 +16,7 @@ class WebHookHandler(RequestHandler):
         '''
         s = bot.setWebhook(APP_URL + '/' + TOKEN)
         if s:
-            self.response.write("Webhook setted")
+            self.response.write("Webhook set")
         else:
             self.response.write("Webhook setup failed")
 
