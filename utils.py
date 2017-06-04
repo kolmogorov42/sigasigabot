@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import random
 
 
 def validateQuotes(text):
@@ -24,13 +25,24 @@ def tokenize(text):
 
         quoted.extend(non_quoted)
         return quoted
-
-    else:
-        return text.replace('"', '').split()
+    return text.replace('"', '').split()
 
 
 def match(text, sl):
     nsl = list(sl)
     for token in tokenize(text):
-        nsl = filter(lambda x: re.search(r'\b' + token + r'\b', x[1]['text'], flags=re.I), nsl)
+        nsl = filter(lambda x: re.search(r'\b' + token + r'\b', x[1]['text'], flags=re.I | re.U), nsl)
     return nsl
+
+
+def randomSample(sample_size, population):
+    if len(population) < sample_size:
+        return population
+    sample = []
+    for i, elem in enumerate(population):
+        if i < sample_size:
+            sample.append(elem)
+        elif random.random() < sample_size / float(i + 1):
+            replace = random.randint(0, len(sample) - 1)
+            sample[replace] = elem
+    return sample
