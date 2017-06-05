@@ -83,7 +83,7 @@ def parseMsgNumber(bot, update):
 def parseInlineQuery(bot, update):
     q = update.inline_query.query
 
-    if q == 'gen':
+    if q.lower() == 'gen':
         results = []
         restext = gen.generate()
         results.append(telegram.InlineQueryResultArticle(
@@ -92,7 +92,7 @@ def parseInlineQuery(bot, update):
             thumb_url='http://i.imgur.com/Msphffb.jpg',
             thumb_width=AVATAR_SIZE,
             thumb_height=AVATAR_SIZE,
-            title='SIGARETTO',
+            title='SIGARETTO #GENERATED',
             description=restext[:200],
             input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
         ))
@@ -104,18 +104,35 @@ def parseInlineQuery(bot, update):
         res = utils.randomSample(MAX_RESULTS, res)
 
         results = []
-        for i in res:
-            restext = i['text']
+
+        if not res:
+            restext = random.choice(notfound.notfound)
+            if "%s" in restext:
+                restext = restext % q
             results.append(telegram.InlineQueryResultArticle(
                 type='article',
                 id=uuid.uuid4(),
                 thumb_url='http://i.imgur.com/Msphffb.jpg',
                 thumb_width=AVATAR_SIZE,
                 thumb_height=AVATAR_SIZE,
-                title='SIGARETTO #%d' % i['id'],
+                title='SIGARETTO #NOT_FOUND',
                 description=restext[:200],
                 input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
             ))
+
+        else:
+            for i in res:
+                restext = i['text']
+                results.append(telegram.InlineQueryResultArticle(
+                    type='article',
+                    id=uuid.uuid4(),
+                    thumb_url='http://i.imgur.com/Msphffb.jpg',
+                    thumb_width=AVATAR_SIZE,
+                    thumb_height=AVATAR_SIZE,
+                    title='SIGARETTO #%d' % i['id'],
+                    description=restext[:200],
+                    input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
+                ))
 
         bot.answerInlineQuery(update.inline_query.id, results, cache_time=0)
 
