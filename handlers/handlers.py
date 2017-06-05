@@ -1,8 +1,10 @@
 import random
 import utils
+import telegram
+import uuid
 
 from message_handler import logger
-from bot import sl, media_cache
+from bot import sl, media_cache, MAX_RESULTS
 from media import images, sounds, videos
 import gen
 import notfound
@@ -88,33 +90,42 @@ def parseMsgNumber(bot, update):
 
 
 def parseInlineQuery(bot, update):
+    q = update.inline_query.query
+
+    if q == 'gen':
+        results = []
+        restext = gen.generate()
+        results.append(telegram.InlineQueryResultArticle(
+            type='article',
+            id=uuid.uuid4(),
+            thumb_url='http://i.imgur.com/Msphffb.jpg',
+            thumb_width=64,
+            thumb_height=64,
+            title='SIGARETTO',
+            description=restext[:200],
+            input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
+        ))
+
+        bot.answerInlineQuery(update.inline_query.id, results, cache_time=0)
+
+    else:
+        res = utils.match(q, sl)
+        res = utils.randomSample(MAX_RESULTS, res)
+
+        results = []
+        for i in res:
+            restext = i[1]['text']
+            results.append(telegram.InlineQueryResultArticle(
+                type='article',
+                id=uuid.uuid4(),
+                thumb_url='http://i.imgur.com/Msphffb.jpg',
+                thumb_width=64,
+                thumb_height=64,
+                title='SIGARETTO',
+                description=restext[:200],
+                input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
+            ))
+
+        bot.answerInlineQuery(update.inline_query.id, results, cache_time=0)
+
     logger.info(update)
-
-
-# todo write the whole function
-
-
-def genSiga(bot, update):
-    bot.sendMessage(update.message.chat_id, text=gen.generate())
-
-
-def parseGeneral(bot, update):
-    text = update.message.text
-    try:
-        n_siga = int(text)
-        pickSiga(bot, update, n_siga)
-    except ValueError:
-        if text == 'gen':
-            genSiga(bot, update)
-        elif text == 'random':
-            randomSiga(bot, update)
-        else:
-            results = utils.match(text, sl)
-            if results:
-                pickSiga(bot, update, n_siga=random.choice(results)[0])
-            else:
-                chosen = random.choice(notfound.notfound)
-                if "%s" in chosen:
-                    bot.sendMessage(update.message.chat_id, text=(chosen % text))
-                else:
-                    bot.sendMessage(update.message.chat_id, text=chosen)
