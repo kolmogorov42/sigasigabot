@@ -9,20 +9,26 @@ import random
 random.seed(None)
 
 sys.path.append(os.path.join(os.path.abspath('.'), 'venv/Lib/site-packages'))
+MAX_RESULTS = 50
 
 from credentials import TOKEN
 from webapp2 import WSGIApplication, Route
 
 sf = codecs.open('res/sigaclean.txt', 'r', 'utf-8')
-sl_aux = json.load(sf)
-sl = zip(range(len(sl_aux)), sl_aux)
+sl = json.load(sf)
+
+# example of sl:
+# sl = [
+#     {'id': 1, 'text': 'SIGARETTO fa cose buffe', 'authorid': 1},
+#     ...
+# ]
+
+LAST_SIGA_ID = len(sl)
+# SIGARETTO id's are 1-based
 
 routes = [
-    # Route for handle webhook (change it using admin rights, maybe..
     Route('/set_webhook', handler='handlers.hook_handler.WebHookHandler:set_webhook'),
-
-    # Route for Telegram updates
     Route('/' + TOKEN, handler='handlers.hook_handler.WebHookHandler:webhook_handler')
-
 ]
+
 app = WSGIApplication(routes, debug=False)

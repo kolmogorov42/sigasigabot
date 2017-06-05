@@ -31,7 +31,7 @@ def tokenize(text):
 def match(text, sl):
     nsl = list(sl)
     for token in tokenize(text):
-        nsl = filter(lambda x: re.search(r'\b' + token + r'\b', x[1]['text'], flags=re.I | re.U), nsl)
+        nsl = filter(lambda x: re.search(r'\b' + token + r'\b', x['text'], flags=re.I | re.U), nsl)
     return nsl
 
 
