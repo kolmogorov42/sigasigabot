@@ -8,10 +8,6 @@ import random
 
 random.seed(None)
 
-from cache import Cache
-
-media_cache = Cache()
-
 sys.path.append(os.path.join(os.path.abspath('.'), 'venv/Lib/site-packages'))
 
 from credentials import TOKEN
