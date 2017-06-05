@@ -4,7 +4,7 @@ import telegram
 import uuid
 
 from message_handler import logger
-from bot import sl, MAX_RESULTS, LAST_SIGA_ID
+from bot import sl, MAX_RESULTS, LAST_SIGA_ID, AVATAR_SIZE
 from media import images, sounds, videos, img_cache, audio_cache
 import gen
 import notfound
@@ -90,8 +90,8 @@ def parseInlineQuery(bot, update):
             type='article',
             id=uuid.uuid4(),
             thumb_url='http://i.imgur.com/Msphffb.jpg',
-            thumb_width=64,
-            thumb_height=64,
+            thumb_width=AVATAR_SIZE,
+            thumb_height=AVATAR_SIZE,
             title='SIGARETTO',
             description=restext[:200],
             input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
@@ -110,8 +110,8 @@ def parseInlineQuery(bot, update):
                 type='article',
                 id=uuid.uuid4(),
                 thumb_url='http://i.imgur.com/Msphffb.jpg',
-                thumb_width=64,
-                thumb_height=64,
+                thumb_width=AVATAR_SIZE,
+                thumb_height=AVATAR_SIZE,
                 title='SIGARETTO',
                 description=restext[:200],
                 input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)

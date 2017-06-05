@@ -11,6 +11,8 @@ random.seed(None)
 sys.path.append(os.path.join(os.path.abspath('.'), 'venv/Lib/site-packages'))
 MAX_RESULTS = 50
 
+AVATAR_SIZE = 64
+
 from credentials import TOKEN
 from webapp2 import WSGIApplication, Route
 
