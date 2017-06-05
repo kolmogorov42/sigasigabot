@@ -46,3 +46,9 @@ def randomSample(sample_size, population):
             replace = random.randint(0, len(sample) - 1)
             sample[replace] = elem
     return sample
+
+
+def thumbnail(authorid=None):
+    if not authorid:
+        authorid = 0
+    return 'http://sigaretto.org/bot/%02d.jpg' % authorid

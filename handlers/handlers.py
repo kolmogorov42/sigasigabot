@@ -89,7 +89,7 @@ def parseInlineQuery(bot, update):
         results.append(telegram.InlineQueryResultArticle(
             type='article',
             id=uuid.uuid4(),
-            thumb_url='http://i.imgur.com/Msphffb.jpg',
+            thumb_url=utils.thumbnail(),
             thumb_width=AVATAR_SIZE,
             thumb_height=AVATAR_SIZE,
             title='SIGARETTO #GENERATED',
@@ -112,7 +112,7 @@ def parseInlineQuery(bot, update):
             results.append(telegram.InlineQueryResultArticle(
                 type='article',
                 id=uuid.uuid4(),
-                thumb_url='http://i.imgur.com/Msphffb.jpg',
+                thumb_url=utils.thumbnail(),
                 thumb_width=AVATAR_SIZE,
                 thumb_height=AVATAR_SIZE,
                 title='SIGARETTO #NOT_FOUND',
@@ -123,10 +123,11 @@ def parseInlineQuery(bot, update):
         else:
             for i in res:
                 restext = i['text']
+                logger.info(utils.thumbnail(i['authorid']))
                 results.append(telegram.InlineQueryResultArticle(
                     type='article',
                     id=uuid.uuid4(),
-                    thumb_url='http://i.imgur.com/Msphffb.jpg',
+                    thumb_url=utils.thumbnail(i['authorid']),
                     thumb_width=AVATAR_SIZE,
                     thumb_height=AVATAR_SIZE,
                     title='SIGARETTO #%d' % i['id'],
