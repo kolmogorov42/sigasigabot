@@ -112,7 +112,7 @@ def parseInlineQuery(bot, update):
                 thumb_url='http://i.imgur.com/Msphffb.jpg',
                 thumb_width=AVATAR_SIZE,
                 thumb_height=AVATAR_SIZE,
-                title='SIGARETTO',
+                title='SIGARETTO #%d' % i['id'],
                 description=restext[:200],
                 input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
             ))
