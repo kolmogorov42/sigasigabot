@@ -5,7 +5,7 @@ import uuid
 
 from message_handler import logger
 from bot import sl, MAX_RESULTS, LAST_SIGA_ID, AVATAR_SIZE
-from media import images, sounds, videos, img_cache, audio_cache, img_url, audio_url
+from media import videos
 import gen
 import notfound
 
@@ -69,8 +69,8 @@ def parseInlineQuery(bot, update):
             res = normalSearch(q, sl)
 
         # search completed, we now have all matching results in res, which may or may not be empty
-
         if not res:
+            # empty, send bogus SIGA
             restext = random.choice(notfound.notfound)
             if "%s" in restext:
                 restext = restext % q
@@ -86,6 +86,7 @@ def parseInlineQuery(bot, update):
             ))
 
         else:
+            # non-empty, build list of actual results
             for i in res:
                 restext = i['text']
                 sid = i['id']
