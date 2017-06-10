@@ -5,7 +5,7 @@ import uuid
 
 from message_handler import logger
 from bot import sl, MAX_RESULTS, LAST_SIGA_ID, AVATAR_SIZE
-from media import images, sounds, videos, img_cache, audio_cache
+from media import images, sounds, videos, img_cache, audio_cache, img_url, audio_url
 import gen
 import notfound
 
@@ -15,76 +15,33 @@ def error(bot, update, error):
 
 
 def getS(sl, n_siga):
-    return sl[n_siga + 1]
+    return sl[n_siga - 1]
 
 
-def pickSiga(bot, update, n_siga=None):
-    # n_siga: 1-based SIGARETTO index
-    if not n_siga:
-        randomSiga(bot, update)
-        return
+def normalSearch(q, sl):
+    return utils.randomSample(MAX_RESULTS, utils.match(q, sl))
 
-    if n_siga in images:
+
+def parseSigaNumber(q):
+    if q.startswith('#'):
         try:
-            file_id = img_cache[n_siga]
-            bot.sendPhoto(
-                chat_id=update.message.chat_id,
-                photo=file_id,
-                caption=getS(sl, n_siga)['text'].encode('utf8'))
-        except KeyError:
-            msg = bot.sendPhoto(
-                chat_id=update.message.chat_id,
-                photo=open('res/media/%d.jpg' % n_siga, 'rb'),
-                caption=getS(sl, n_siga)['text'].encode('utf8'))
-
-    elif n_siga in sounds:
-        try:
-            file_id = audio_cache[n_siga]
-            bot.sendAudio(
-                chat_id=update.message.chat_id,
-                audio=file_id,
-                title=sounds[n_siga].encode('utf8'),
-                performer="Cani in Alto",
-                caption=getS(sl, n_siga)['text'].encode('utf8'))
-        except KeyError:
-            msg = bot.sendAudio(
-                chat_id=update.message.chat_id,
-                audio=open('res/media/%d.mp3' % n_siga, 'rb'),
-                title=sounds[n_siga].encode('utf8'),
-                performer="Cani in Alto",
-                caption=getS(sl, n_siga)['text'].encode('utf8'))
-
-    elif n_siga in videos:
-        bot.sendMessage(
-            update.message.chat_id,
-            text=getS(sl, n_siga)['text'] + '\r\n' + videos[n_siga])
-
-    else:
-        try:
-            siga = getS(sl, n_siga)['text']
-            bot.sendMessage(update.message.chat_id, text=siga)
-        except KeyError:
-            randomSiga(bot, update)
-
-
-def randomSiga(bot, update):
-    n_siga = random.randint(1, LAST_SIGA_ID)
-    pickSiga(bot, update, n_siga)
-
-
-def parseMsgNumber(bot, update):
-    try:
-        n_siga = int(update.message.text)
-    except ValueError:
-        n_siga = None
-    pickSiga(bot, update, n_siga)
+            n_siga = int(q[1:])
+            if 1 <= n_siga <= LAST_SIGA_ID:
+                return n_siga
+            return False
+        except ValueError:
+            return False
+    return False
 
 
 def parseInlineQuery(bot, update):
     q = update.inline_query.query
 
+    # actual inline query results to present to the user
+    results = []
+
     if q.lower() == 'gen':
-        results = []
+        # if it's simply 'gen', we fill our results with a generated SIGARETTO
         restext = gen.generate()
         results.append(telegram.InlineQueryResultArticle(
             type='article',
@@ -97,13 +54,21 @@ def parseInlineQuery(bot, update):
             input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
         ))
 
-        bot.answerInlineQuery(update.inline_query.id, results, cache_time=0)
-
     else:
-        res = utils.match(q, sl)
-        res = utils.randomSample(MAX_RESULTS, res)
+        # we have to search
+        # search results:
+        res = []
 
-        results = []
+        # try to detect if user asked for a SIGA id
+        asked_siga = parseSigaNumber(q)
+        if asked_siga:
+            # yes, pick it
+            res = [getS(sl, asked_siga)]
+        else:
+            # no, regular query matching
+            res = normalSearch(q, sl)
+
+        # search completed, we now have all matching results in res, which may or may not be empty
 
         if not res:
             restext = random.choice(notfound.notfound)
@@ -123,18 +88,45 @@ def parseInlineQuery(bot, update):
         else:
             for i in res:
                 restext = i['text']
-                logger.info(utils.thumbnail(i['authorid']))
+                sid = i['id']
+                authorid = i['authorid']
+
+                # if sid in img_cache:
+                #     results.append(telegram.InlineQueryResultPhoto(
+                #         type='photo',
+                #         id=sid,
+                #         photo_url=img_url(sid),
+                #         thumb_url=utils.thumbnail(authorid),
+                #         title='SIGARETTO #%d' % sid,
+                #         description=restext[:200],
+                #         caption=restext[:200],
+                #         photo_file_id=img_cache[sid],
+                #     ))
+                # elif sid in audio_cache:
+                #     results.append(telegram.InlineQueryResultAudio(
+                #         type='audio',
+                #         id=sid,
+                #         audio_url=audio_url(sid),
+                #         title='SIGARETTO #%d' % sid,
+                #         caption=restext[:200]
+                #         # to be completed with other parameters
+                #     ))
+
+                fulltext = restext
+                if sid in videos:
+                    fulltext = restext + "\n\n" + videos[sid]
                 results.append(telegram.InlineQueryResultArticle(
                     type='article',
-                    id=uuid.uuid4(),
-                    thumb_url=utils.thumbnail(i['authorid']),
+                    id=sid,
+                    thumb_url=utils.thumbnail(authorid),
                     thumb_width=AVATAR_SIZE,
                     thumb_height=AVATAR_SIZE,
-                    title='SIGARETTO #%d' % i['id'],
+                    title='SIGARETTO #%d' % sid,
                     description=restext[:200],
-                    input_message_content=telegram.InputTextMessageContent(message_text=restext, parse_mode=None)
+                    input_message_content=telegram.InputTextMessageContent(message_text=fulltext, parse_mode=None)
                 ))
 
-        bot.answerInlineQuery(update.inline_query.id, results, cache_time=0)
+    # all cases examined, we now have a results array and can answer the query
+    bot.answerInlineQuery(update.inline_query.id, results, cache_time=0)
 
     logger.info(update)
