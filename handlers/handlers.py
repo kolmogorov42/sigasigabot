@@ -22,6 +22,10 @@ def normalSearch(q, sl):
     return utils.randomSample(MAX_RESULTS, utils.match(q, sl))
 
 
+def regexSearch(q, sl):
+    return utils.randomSample(MAX_RESULTS, utils.reSearch(q, sl))
+
+
 def parseSigaNumber(q):
     if q.startswith('#'):
         try:
@@ -59,13 +63,17 @@ def parseInlineQuery(bot, update):
         # search results:
         res = []
 
-        # try to detect if user asked for a SIGA id
+        # try to detect if user asked for a SIGA id or a regex search (starting with "-r ")
         asked_siga = parseSigaNumber(q)
         if asked_siga:
             # yes, pick it
             res = [getS(sl, asked_siga)]
+        elif q.startswith('-r '):
+            # no, but a regex search is invoked
+            q = q[3:]
+            res = regexSearch(q, sl)
         else:
-            # no, regular query matching
+            # neither special case is required, normal search
             res = normalSearch(q, sl)
 
         # search completed, we now have all matching results in res, which may or may not be empty

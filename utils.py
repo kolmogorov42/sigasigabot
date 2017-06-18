@@ -31,8 +31,22 @@ def tokenize(text):
 def match(text, sl):
     nsl = list(sl)
     for token in tokenize(text):
-        nsl = filter(lambda x: re.search(r'\b' + token + r'\b', x['text'], flags=re.I | re.U), nsl)
+        nsl = filter(lambda x: re.search(r'\b' + re.escape(token) + r'\b', x['text'], flags=re.I | re.U), nsl)
     return nsl
+
+
+def reMatch(rq, sl):
+    nsl = list(sl)
+    nsl = filter(lambda x: rq.search(x['text']), nsl)
+    return nsl
+
+
+def reSearch(query, sl):
+    try:
+        rq = re.compile(query, flags=re.I | re.U)
+        return reMatch(rq, sl)
+    except re.error:
+        return match(query, sl)
 
 
 def randomSample(sample_size, population):
