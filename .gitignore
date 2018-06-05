@@ -77,3 +77,6 @@ telegram.jpg
 
 # Exclude .exrc file for Vim
 .exrc
+
+# Configuration
+config.ini
