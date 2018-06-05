@@ -80,3 +80,10 @@ telegram.jpg
 
 # Configuration
 config.ini
+
+# Resources
+res/
+authors.py
+media.py
+notfound.py
+gen.py
